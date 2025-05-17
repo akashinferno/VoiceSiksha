@@ -1,4 +1,3 @@
-// settings.dart
 import 'package:flutter/material.dart';
 import 'package:deaf_dumb_app/styles.dart'; // Import the styles file
 
@@ -19,14 +18,14 @@ class SettingsWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.black,
+                color: AppColors.black, // Use AppColors.black
               ),
             ),
             const SizedBox(height: 20),
             ListTile(
               title: const Text(
                 'Profile',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to profile settings page
@@ -41,7 +40,7 @@ class SettingsWidget extends StatelessWidget {
             ListTile(
               title: const Text(
                 'Notifications',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to notifications settings page
@@ -56,7 +55,7 @@ class SettingsWidget extends StatelessWidget {
             ListTile(
               title: const Text(
                 'Language',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to language settings page
@@ -71,7 +70,7 @@ class SettingsWidget extends StatelessWidget {
             ListTile(
               title: const Text(
                 'About Us',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to language settings page
@@ -84,7 +83,7 @@ class SettingsWidget extends StatelessWidget {
             ListTile(
               title: const Text(
                 'Accessibility',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to accessibility settings
@@ -99,7 +98,7 @@ class SettingsWidget extends StatelessWidget {
             ListTile(
               title: const Text(
                 'Help & Support',
-                style: TextStyle(color: AppColors.black),
+                style: TextStyle(color: AppColors.black), // Use AppColors.black
               ),
               onTap: () {
                 // Navigate to help and support
@@ -128,14 +127,17 @@ class ProfileSettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Profile Settings',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'Profile Settings Page',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );
@@ -152,14 +154,17 @@ class NotificationSettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Notification Settings',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'Notification Settings Page',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );
@@ -176,14 +181,17 @@ class LanguageSettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Language Settings',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'Language Settings Page',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );
@@ -198,13 +206,19 @@ class AboutUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Us', style: TextStyle(color: AppColors.white)),
-        backgroundColor: AppColors.primaryPurple,
+        title: const Text(
+          'About Us',
+          style: TextStyle(color: AppColors.white),
+        ), // Use AppColors.white
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'About Us',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );
@@ -221,14 +235,17 @@ class AccessibilitySettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Accessibility',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'Accessibility Settings Page',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );
@@ -245,14 +262,17 @@ class HelpAndSupportPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Help & Support',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Text(
           'Help & Support Page',
-          style: TextStyle(fontSize: 20, color: AppColors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.black,
+          ), // Use AppColors.black
         ),
       ),
     );

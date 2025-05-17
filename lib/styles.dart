@@ -1,12 +1,13 @@
-// styles.dart
 import 'package:flutter/material.dart';
 
-// Define your purple color palette.
+// Define your light green color palette.
 class AppColors {
-  static const Color primaryPurple = Color(0xFF9C27B0);
-  static const Color secondaryPurple = Color(0xFF7E57C2);
-  static const Color lightPurple = Color(0xFFE91E63);
-  static const Color darkPurple = Color(0xFF512DA8);
+  static const Color primaryGreen = Color(0xFF81C784); // Light green
+  static const Color secondaryGreen = Color(
+    0xFF66BB6A,
+  ); // Slightly darker green
+  static const Color lightGreen = Color(0xFFC8E6C9); // Very light green
+  static const Color darkGreen = Color(0xFF388E3C); // Darker green
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color grey = Colors.grey;

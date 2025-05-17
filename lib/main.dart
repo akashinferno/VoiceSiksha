@@ -1,27 +1,22 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'styles.dart'; // Import the styles file
-import 'package:deaf_dumb_app/widgets/settings.dart'; // Import the settings file
-import 'package:deaf_dumb_app/widgets/practice.dart'; // Import the practice file
+import 'package:deaf_dumb_app/widgets/settings.dart';
+import 'package:deaf_dumb_app/widgets/practice.dart';
 
 void main() {
-  // Ensure that the Flutter framework is initialized.
   WidgetsFlutterBinding.ensureInitialized();
-  // Set preferred orientations (portrait only).
   try {
     SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ])
         .then((_) {
-          runApp(
-            const VoiceSikshaApp(),
-          ); // Run the app after setting orientations.
+          runApp(const VoiceSikshaApp());
         })
         .catchError((error) {
           print("Error setting device orientation: $error");
-          runApp(const VoiceSikshaApp()); // Run the app anyway
+          runApp(const VoiceSikshaApp());
         });
   } catch (e) {
     print("An error occurred: $e");
@@ -37,12 +32,13 @@ class VoiceSikshaApp extends StatelessWidget {
       title: 'VoiceSiksha',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Define the color scheme using the purple palette from styles.dart
-        colorScheme: ColorScheme(
-          primary: AppColors.primaryPurple,
-          secondary: AppColors.secondaryPurple,
-          surface: AppColors.white,
+        // Use the light green color scheme defined in styles.dart
+        primaryColor: AppColors.primaryGreen,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primaryGreen,
+          secondary: AppColors.secondaryGreen,
           background: AppColors.white,
+          surface: AppColors.white,
           error: Colors.red,
           onPrimary: AppColors.white,
           onSecondary: AppColors.white,
@@ -52,7 +48,6 @@ class VoiceSikshaApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         fontFamily: 'Inter',
-        // Use the text styles from styles.dart
         textTheme: const TextTheme(
           displayLarge: AppTextStyles.headline1,
           displayMedium: AppTextStyles.headline2,
@@ -95,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryPurple,
+      backgroundColor: AppColors.primaryGreen, // Use primaryGreen
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,26 +115,23 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class HomeScreen extends StatefulWidget {
-  // Changed to StatefulWidget
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState(); // Added createState
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; // Keep track of the selected index.
-
-  // Create a list of widgets for the different sections.
+  int _selectedIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
-    const PracticeWidget(), // Use the PracticeWidget here.
+    const PracticeWidget(),
     const Center(
       child: Text(
         'Learn Section',
         style: TextStyle(fontSize: 24, color: AppColors.black),
       ),
     ),
-    const SettingsWidget(), // Use the SettingsWidget here.
+    const SettingsWidget(),
   ];
 
   void _onItemTapped(int index) {
@@ -156,10 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
           'VoiceSiksha',
           style: TextStyle(color: AppColors.white),
         ),
-        backgroundColor: AppColors.primaryPurple,
-        centerTitle: false, //changed to false
+        backgroundColor: AppColors.primaryGreen, // Use primaryGreen
+        centerTitle: false,
       ),
-      body: _widgetOptions.elementAt(_selectedIndex), //show selected widget
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
@@ -168,7 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Custom bottom navigation bar widget.
 class CustomBottomNavigationBar extends StatelessWidget {
   const CustomBottomNavigationBar({
     super.key,
@@ -182,11 +173,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: AppColors.primaryPurple,
+      backgroundColor: AppColors.primaryGreen, // Use primaryGreen
       selectedItemColor: AppColors.white,
-      unselectedItemColor: AppColors.lightGrey,
-      currentIndex: selectedIndex, // Use the selectedIndex.
-      onTap: onItemTapped, // Use the onItemTapped callback.
+      unselectedItemColor: AppColors.lightGreen, // Use lightGreen
+      currentIndex: selectedIndex,
+      onTap: onItemTapped,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.speaker), label: 'Practice'),
         BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Learn'),

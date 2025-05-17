@@ -37,7 +37,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.white, // Use AppColors.white
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -51,7 +51,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.black,
+                  color: AppColors.black, // Use AppColors.black
                   fontFamily:
                       'Pacifico', // Use the font family name you declared in pubspec.yaml
                 ),
@@ -63,7 +63,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: AppColors.black,
+                color: AppColors.black, // Use AppColors.black
               ),
             ),
             const SizedBox(height: 10),
@@ -119,9 +119,13 @@ class ModuleBox extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.lightPurple.withOpacity(0.2),
+        color: AppColors.lightGreen.withOpacity(
+          0.2,
+        ), // Use AppColors.lightGreen
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.lightPurple.withOpacity(0.5)),
+        border: Border.all(
+          color: AppColors.lightGreen.withOpacity(0.5),
+        ), // Use AppColors.lightGreen
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
@@ -136,7 +140,7 @@ class ModuleBox extends StatelessWidget {
           Icon(
             getModuleIcon(moduleName),
             size: 40,
-            color: AppColors.darkPurple,
+            color: AppColors.darkGreen, // Use AppColors.darkGreen
           ),
           const SizedBox(width: 15),
           Expanded(
@@ -148,7 +152,7 @@ class ModuleBox extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.black,
+                    color: AppColors.black, // Use AppColors.black
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -156,7 +160,7 @@ class ModuleBox extends StatelessWidget {
                   'Difficulty: $difficulty',
                   style: const TextStyle(
                     fontSize: 16,
-                    color: AppColors.darkPurple,
+                    color: AppColors.darkGreen, // Use AppColors.darkGreen
                   ),
                 ),
               ],
@@ -189,16 +193,19 @@ class HindiLettersPronunciation extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Hindi Letters Pronunciation',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
             'This is where the practice session for Hindi letters pronunciation will go.  You can add interactive elements, lists of letters, and pronunciation guides here.',
-            style: TextStyle(fontSize: 16, color: AppColors.black),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.black,
+            ), // Use AppColors.black
             textAlign: TextAlign.center,
           ),
         ),
@@ -216,16 +223,19 @@ class NumbersPronunciation extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Numbers Pronunciation',
-          style: TextStyle(color: AppColors.white),
+          style: TextStyle(color: AppColors.white), // Use AppColors.white
         ),
-        backgroundColor: AppColors.primaryPurple,
+        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
       ),
       body: const Center(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
             'This is where the practice session for Numbers pronunciation will go.  You can add interactive elements, lists of Numbers, and pronunciation guides here.',
-            style: TextStyle(fontSize: 16, color: AppColors.black),
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.black,
+            ), // Use AppColors.black
             textAlign: TextAlign.center,
           ),
         ),
