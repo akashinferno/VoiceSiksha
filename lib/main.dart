@@ -48,7 +48,7 @@ class VoiceSikshaApp extends StatelessWidget {
           onSecondary: AppColors.white,
           onSurface: AppColors.black,
           onBackground: AppColors.black,
-          onError: AppColors.white,
+          onError: Colors.white,
           brightness: Brightness.light,
         ),
         fontFamily: 'Inter',
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(color: AppColors.white),
         ),
         backgroundColor: AppColors.primaryPurple,
-        centerTitle: true,
+        centerTitle: false, //changed to false
       ),
       body: _widgetOptions.elementAt(_selectedIndex), //show selected widget
       bottomNavigationBar: CustomBottomNavigationBar(
