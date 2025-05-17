@@ -1,188 +1,197 @@
+// main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'styles.dart'; // Import the styles file
+import 'package:deaf_dumb_app/widgets/settings.dart'; // Import the settings file
+import 'package:deaf_dumb_app/widgets/practice.dart'; // Import the practice file
 
 void main() {
-  runApp(VoiceUpApp());
+  // Ensure that the Flutter framework is initialized.
+  WidgetsFlutterBinding.ensureInitialized();
+  // Set preferred orientations (portrait only).
+  try {
+    SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ])
+        .then((_) {
+          runApp(
+            const VoiceSikshaApp(),
+          ); // Run the app after setting orientations.
+        })
+        .catchError((error) {
+          print("Error setting device orientation: $error");
+          runApp(const VoiceSikshaApp()); // Run the app anyway
+        });
+  } catch (e) {
+    print("An error occurred: $e");
+    runApp(const VoiceSikshaApp());
+  }
 }
 
-class VoiceUpApp extends StatelessWidget {
+class VoiceSikshaApp extends StatelessWidget {
+  const VoiceSikshaApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'VoiceSiksha',
-      home: MyHomePage(),
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        // Define the color scheme using the purple palette from styles.dart
+        colorScheme: ColorScheme(
+          primary: AppColors.primaryPurple,
+          secondary: AppColors.secondaryPurple,
+          surface: AppColors.white,
+          background: AppColors.white,
+          error: Colors.red,
+          onPrimary: AppColors.white,
+          onSecondary: AppColors.white,
+          onSurface: AppColors.black,
+          onBackground: AppColors.black,
+          onError: AppColors.white,
+          brightness: Brightness.light,
+        ),
+        fontFamily: 'Inter',
+        // Use the text styles from styles.dart
+        textTheme: const TextTheme(
+          displayLarge: AppTextStyles.headline1,
+          displayMedium: AppTextStyles.headline2,
+          displaySmall: AppTextStyles.headline3,
+          headlineMedium: AppTextStyles.headline4,
+          headlineSmall: AppTextStyles.headline5,
+          titleLarge: AppTextStyles.headline6,
+          titleMedium: AppTextStyles.subtitle1,
+          titleSmall: AppTextStyles.subtitle2,
+          bodyLarge: AppTextStyles.bodyText1,
+          bodyMedium: AppTextStyles.bodyText2,
+          labelLarge: AppTextStyles.button,
+          bodySmall: AppTextStyles.caption,
+          labelSmall: AppTextStyles.overline,
+        ),
+      ),
+      home: const SplashScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int currentIndex = 0;
-  final List<String> hindiLetters = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ'];
-  final int totalLessons = 6;
-
-  void nextLesson() {
-    if (currentIndex < hindiLetters.length - 1) {
-      setState(() {
-        currentIndex++;
-      });
-    }
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    double progress = (currentIndex + 1) / totalLessons;
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        title: Text("VoiceUp"),
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.grey[100],
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      backgroundColor: AppColors.primaryPurple,
+      body: Center(
         child: Column(
-          children: [
-            LinearProgressIndicator(
-              value: progress,
-              color: Colors.deepPurple,
-              backgroundColor: Colors.grey[300],
-              minHeight: 10,
-            ),
-            SizedBox(height: 15),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
             Text(
-              "Lesson ${currentIndex + 1} of $totalLessons",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 30),
-            Container(
-              height: 200,
-              width: 200,
-              decoration: BoxDecoration(
-                color: Colors.deepPurple.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 500),
-                  transitionBuilder: (
-                    Widget child,
-                    Animation<double> animation,
-                  ) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset(0.0, 0.5),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: FadeTransition(opacity: animation, child: child),
-                    );
-                  },
-                  child: Text(
-                    hindiLetters[currentIndex],
-                    key: ValueKey<int>(currentIndex),
-                    style: TextStyle(fontSize: 80, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              'VoiceSiksha',
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
               ),
             ),
-            SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text("Pronounce"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 239, 120, 219),
-                minimumSize: Size(double.infinity, 50),
-              ),
-            ),
-            SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: nextLesson,
-              child: Text("Next"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 239, 120, 219),
-                minimumSize: Size(double.infinity, 50),
-              ),
-            ),
-            SizedBox(height: 30),
-            if (progress == 1.0)
-              Column(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 60),
-                  SizedBox(height: 10),
-                  Text(
-                    "🎉 Lesson Completed!",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green[700],
-                    ),
-                  ),
-                ],
-              ),
-            Spacer(),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 5,
-                    spreadRadius: 2,
-                    color: Colors.grey.withOpacity(0.3),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text("Level", style: TextStyle(color: Colors.grey)),
-                      Text(
-                        "Beginner",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text("Score", style: TextStyle(color: Colors.grey)),
-                      Text(
-                        "${(progress * 100).toInt()}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text("XP", style: TextStyle(color: Colors.grey)),
-                      Text(
-                        "${currentIndex * 10}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            const SizedBox(height: 16),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  // Changed to StatefulWidget
+  const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState(); // Added createState
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0; // Keep track of the selected index.
+
+  // Create a list of widgets for the different sections.
+  final List<Widget> _widgetOptions = <Widget>[
+    const PracticeWidget(), // Use the PracticeWidget here.
+    const Center(
+      child: Text(
+        'Learn Section',
+        style: TextStyle(fontSize: 24, color: AppColors.black),
+      ),
+    ),
+    const SettingsWidget(), // Use the SettingsWidget here.
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'VoiceSiksha',
+          style: TextStyle(color: AppColors.white),
+        ),
+        backgroundColor: AppColors.primaryPurple,
+        centerTitle: true,
+      ),
+      body: _widgetOptions.elementAt(_selectedIndex), //show selected widget
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+}
+
+// Custom bottom navigation bar widget.
+class CustomBottomNavigationBar extends StatelessWidget {
+  const CustomBottomNavigationBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
+
+  final int selectedIndex;
+  final Function(int) onItemTapped;
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      backgroundColor: AppColors.primaryPurple,
+      selectedItemColor: AppColors.white,
+      unselectedItemColor: AppColors.lightGrey,
+      currentIndex: selectedIndex, // Use the selectedIndex.
+      onTap: onItemTapped, // Use the onItemTapped callback.
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(icon: Icon(Icons.speaker), label: 'Practice'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Learn'),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      ],
     );
   }
 }
