@@ -1,3 +1,4 @@
+import 'package:deaf_dumb_app/widgets/hindi_letters_pronunciation.dart';
 import 'package:flutter/material.dart';
 import 'package:deaf_dumb_app/styles.dart'; // Import the styles file
 
@@ -181,36 +182,6 @@ class ModuleBox extends StatelessWidget {
       default:
         return Icons.book;
     }
-  }
-}
-
-class HindiLettersPronunciation extends StatelessWidget {
-  const HindiLettersPronunciation({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Hindi Letters Pronunciation',
-          style: TextStyle(color: AppColors.white), // Use AppColors.white
-        ),
-        backgroundColor: AppColors.primaryGreen, // Use AppColors.primaryGreen
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            'This is where the practice session for Hindi letters pronunciation will go.  You can add interactive elements, lists of letters, and pronunciation guides here.',
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColors.black,
-            ), // Use AppColors.black
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
   }
 }
 
