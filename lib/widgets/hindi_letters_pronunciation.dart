@@ -10,33 +10,63 @@ class HindiLettersPronunciation extends StatefulWidget {
 }
 
 class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
-  // Define letter sets for different levels
   static const List<String> _level1Letters = [
-    // Vowels (Svar) - First 10
-    'अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ए', 'ऐ', 'ओ',
+    'अ',
+    'आ',
+    'इ',
+    'ई',
+    'उ',
+    'ऊ',
+    'ऋ',
+    'ए',
+    'ऐ',
+    'ओ',
   ];
   static const List<String> _level2Letters = [
-    // Consonants (Vyanjan) - Ka Varga
-    'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', // Ch varg
+    'क',
+    'ख',
+    'ग',
+    'घ',
+    'ङ',
+    'च',
+    'छ',
+    'ज',
+    'झ',
+    'ञ',
     'ट',
     'ठ',
     'ड',
     'ढ',
     'ण',
     'ड़',
-    'ढ़', // T varg (with additional common letters)
-    'त', 'थ', 'द', 'ध', 'न', // Ta varg
-    'प', 'फ', 'ब', 'भ', 'म', // P varg
-    'य', 'र', 'ल', 'व', // Antahstha (Semi-vowels)
-    'श', 'ष', 'स', 'ह', // Ushma (Sibilants)
-    'क्ष', 'त्र', 'ज्ञ',
+    'ढ़',
+    'त',
+    'थ',
+    'द',
+    'ध',
+    'न',
+    'प',
+    'फ',
+    'ब',
+    'भ',
+    'म',
+    'य',
+    'र',
+    'ल',
+    'व',
+    'श',
+    'ष',
+    'स',
+    'ह',
+    'क्ष',
+    'त्र',
+    'ज्ञ',
   ];
 
   List<String> _currentLevelLetters = [];
-  int? _selectedLevel; // null if no level is selected
-
+  int? _selectedLevel;
   int _currentIndex = 0;
-  int _score = 0; // This now represents the count of correct answers
+  int _score = 0;
   bool _awaitingScore = false;
 
   void _selectLevel(int level) {
@@ -47,7 +77,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       } else if (level == 2) {
         _currentLevelLetters = List.from(_level2Letters);
       } else {
-        _currentLevelLetters = []; // Should not happen with current UI
+        _currentLevelLetters = [];
       }
       _currentIndex = 0;
       _score = 0;
@@ -64,7 +94,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   void _submitScore(bool correct) {
     setState(() {
       if (correct) {
-        _score++; // Increment count of correct answers
+        _score++;
       }
       _moveToNextLetterOrEnd();
     });
@@ -82,8 +112,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       if (_currentIndex < _currentLevelLetters.length - 1) {
         _currentIndex++;
       } else {
-        _currentIndex =
-            _currentLevelLetters.length; // Mark practice as complete
+        _currentIndex = _currentLevelLetters.length;
         _showCompletionDialog();
       }
     });
@@ -91,7 +120,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
 
   void _resetPractice() {
     setState(() {
-      _selectedLevel = null; // Go back to level selection
+      _selectedLevel = null;
       _currentLevelLetters = [];
       _currentIndex = 0;
       _score = 0;
@@ -100,7 +129,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   }
 
   void _showCompletionDialog() {
-    if (_currentLevelLetters.isEmpty) return; // Should not happen
+    if (_currentLevelLetters.isEmpty) return;
 
     double percentageScore =
         _currentLevelLetters.isNotEmpty
@@ -166,7 +195,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               child: const Text('Practice Again'),
               onPressed: () {
                 Navigator.of(context).pop();
-                _resetPractice(); // This will take to level selection
+                _resetPractice();
               },
             ),
             TextButton(
@@ -183,9 +212,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               child: const Text('Close'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                _resetPractice(); // Also reset to level selection before popping screen
-                Navigator.of(context).pop(); // Go back from the module screen
+                Navigator.of(context).pop();
+                _resetPractice();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -206,47 +235,92 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               'Select a Level',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryGreen,
               ),
             ),
             const SizedBox(height: 40),
-            ElevatedButton(
+            _buildLevelButton(
+              levelNumber: 1,
+              levelName: 'Vowels',
+              description: 'Learn the basic Hindi vowels (Svar)',
               onPressed: () => _selectLevel(1),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkGreen,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Level 1 (Vowels)',
-                style: TextStyle(color: AppColors.white),
-              ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            _buildLevelButton(
+              levelNumber: 2,
+              levelName: 'Consonants',
+              description: 'Practice Hindi consonants (Vyanjan)',
               onPressed: () => _selectLevel(2),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkGreen,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLevelButton({
+    required int levelNumber,
+    required String levelName,
+    required String description,
+    required VoidCallback onPressed,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(15),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: AppColors.lightGreen.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: AppColors.primaryGreen.withOpacity(0.5)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.grade_outlined,
+                  color: AppColors.darkGreen,
+                  size: 28,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 10),
+                Text(
+                  'Level $levelNumber',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkGreen,
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              levelName,
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.black.withOpacity(0.8),
+                fontWeight: FontWeight.w500,
               ),
-              child: const Text(
-                'Level 2 (Consonants)',
-                style: TextStyle(color: AppColors.white),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.black.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColors.primaryGreen,
+                size: 24,
               ),
             ),
           ],
@@ -258,7 +332,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   Widget _buildProgressAndScore() {
     if (_currentLevelLetters.isEmpty) return const SizedBox.shrink();
 
-    // Progress based on total letters in the current level
     double progressValue =
         _currentLevelLetters.isNotEmpty
             ? (_currentIndex) / _currentLevelLetters.length.toDouble()
@@ -268,19 +341,14 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       progressValue = 1.0;
     }
 
-    // Calculate points per correct answer for the current level
-    // Ensure _currentLevelLetters.length is not zero to avoid division by zero
     double pointsPerCorrect =
         _currentLevelLetters.isNotEmpty
             ? 100.0 / _currentLevelLetters.length
             : 0;
-    // Calculate current score based on number of correct answers (_score)
     double currentDisplayScore = _score * pointsPerCorrect;
 
     return Column(
-      // Corrected: Added children named parameter
       children: <Widget>[
-        // Content of the Column
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -314,7 +382,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         ),
         const SizedBox(height: 20),
         Text(
-          // Display score as "X / 100"
           'Current Score: ${currentDisplayScore.toStringAsFixed(0)} / 100',
           style: TextStyle(
             fontSize: 26,
@@ -322,16 +389,13 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             color: AppColors.primaryGreen,
           ),
         ),
-      ], // Corrected: This closes the children list of the Column
+      ],
     );
   }
 
   Widget _buildLetterView() {
     if (_currentLevelLetters.isEmpty ||
         _currentIndex >= _currentLevelLetters.length) {
-      // This case should ideally be handled by the completion view,
-      // or if _selectedLevel is null, level selection screen is shown.
-      // If somehow we reach here with an empty list or out of bounds, show a fallback.
       return const Center(
         child: Text("Please select a level or practice complete."),
       );
@@ -475,8 +539,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   }
 
   Widget _buildCompletionView() {
-    if (_currentLevelLetters.isEmpty)
-      return const SizedBox.shrink(); // Should not be reached if logic is correct
+    if (_currentLevelLetters.isEmpty) return const SizedBox.shrink();
     double percentageScore =
         _currentLevelLetters.isNotEmpty
             ? (_score / _currentLevelLetters.length * 100)
@@ -500,7 +563,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
             const SizedBox(height: 25),
             Text(
-              // Final score as percentage
               'Final Score: ${percentageScore.toStringAsFixed(0)}%',
               style: TextStyle(
                 fontSize: 22,
@@ -511,7 +573,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
             const SizedBox(height: 10),
             Text(
-              // Count of correct letters
               'Letters Correct: $_score / ${_currentLevelLetters.length}',
               style: TextStyle(
                 fontSize: 18,
@@ -526,7 +587,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 'Practice Again',
                 style: TextStyle(color: AppColors.white, fontSize: 18),
               ),
-              onPressed: _resetPractice, // Takes to level selection
+              onPressed: _resetPractice,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,
                 padding: const EdgeInsets.symmetric(
@@ -549,9 +610,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 style: TextStyle(fontSize: 16),
               ),
               onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(); // Pops the HindiLettersPronunciation screen
+                Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.darkGreen,
@@ -585,7 +644,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               _selectedLevel == null
                   ? _buildLevelSelectionScreen()
                   : Column(
-                    // Main practice layout
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
@@ -602,22 +660,20 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                               child: child,
                             );
                           },
-                          // Ensure _currentLevelLetters is not empty before checking _currentIndex
                           child:
                               _currentLevelLetters.isNotEmpty &&
                                       _currentIndex >=
                                           _currentLevelLetters.length
-                                  ? _buildCompletionView() // Show completion view if all letters are done
-                                  : _buildLetterView(), // Otherwise, show the current letter or level selection if not started
+                                  ? _buildCompletionView()
+                                  : _buildLetterView(),
                         ),
                       ),
-                      // Action Buttons Area
                       if (_currentLevelLetters.isNotEmpty &&
                           _currentIndex < _currentLevelLetters.length)
                         _awaitingScore
                             ? _buildScoringControls()
                             : _buildPronounceAndSkipControls(),
-                      const SizedBox(height: 10), // Common bottom padding
+                      const SizedBox(height: 10),
                     ],
                   ),
         ),
@@ -625,15 +681,3 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     );
   }
 }
-
-
-// **Key corrections:**
-
-// 1.  **`_buildProgressAndScore()`:**
-//     * The `Column` widget now correctly uses `children: <Widget>[...]` to enclose its child widgets.
-//     * Added checks for `_currentLevelLetters.isNotEmpty` before division to prevent errors if the list is empty.
-// 2.  **`_buildLetterView()`:** Added a more robust fallback text if the state is somehow inconsistent.
-// 3.  **`_showCompletionDialog()` and `_buildCompletionView()`:** Added checks for `_currentLevelLetters.isNotEmpty` before division.
-// 4.  **`build()` method's `AnimatedSwitcher` child:** Added a check for `_currentLevelLetters.isNotEmpty` before evaluating `_currentIndex >= _currentLevelLetters.length` to prevent potential errors if a level hasn't been fully initialized yet.
-
-// These changes should resolve the errors you encountered and ensure the widget functions as intended. Please replace your existing `HindiLettersPronunciation` widget code with this updated versi
