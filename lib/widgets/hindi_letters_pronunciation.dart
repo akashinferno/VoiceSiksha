@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
@@ -85,6 +85,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   bool _isRecorderInitialized = false;
   String _recorderStatusMessage = "Initializing recorder...";
   // ---
+  late ConfettiController _confettiController; // Add confetti controller
 
   // --- Lifecycle Methods ---
   @override
@@ -92,6 +93,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     super.initState();
     _recorder = FlutterSoundRecorder();
     _initializeRecorder();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    ); // Initialize it
   }
 
   Future<void> _initializeRecorder() async {
@@ -165,6 +169,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       print('Error closing recorder during dispose: $e');
     });
     _recorder = null;
+    _confettiController.dispose(); // Dispose the confetti controller
     super.dispose();
   }
 
@@ -356,89 +361,121 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ? (_score / _currentLevelLetters.length * 100)
             : 0.0;
 
+    // Trigger confetti here
+    _confettiController.play();
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: const Text(
-            '🎉 Practice Complete!',
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Level $_selectedLevel',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.black.withOpacity(0.7),
-                  fontWeight: FontWeight.w500,
-                ),
+        return Stack(
+          // Wrap AlertDialog with Stack to position confetti
+          alignment: Alignment.topCenter,
+          children: [
+            AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              title: const Text(
+                '🎉 Practice Complete!',
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Final Score: ${percentageScore.toStringAsFixed(0)}%',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryBlue,
-                ),
-                textAlign: TextAlign.center,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Level $_selectedLevel',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.black.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Final Score: ${percentageScore.toStringAsFixed(0)}%',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Letters Correct: $_score / ${_currentLevelLetters.length}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Letters Correct: $_score / ${_currentLevelLetters.length}',
-                style: const TextStyle(fontSize: 16, color: AppColors.black),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.white,
-                backgroundColor: AppColors.primaryBlue,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 10,
+              actionsAlignment: MainAxisAlignment.center,
+              actions: <Widget>[
+                TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.white,
+                    backgroundColor: AppColors.primaryBlue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Practice Again'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _resetPractice();
+                  },
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.darkBlue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: AppColors.darkBlue.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  child: const Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    _resetPractice(); // Reset state
+                    if (Navigator.canPop(context)) {
+                      // Check if another route to pop
+                      Navigator.of(context).pop(); // Go back from the module
+                    }
+                  },
                 ),
-              ),
-              child: const Text('Practice Again'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resetPractice();
-              },
+              ],
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.darkBlue,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 10,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: AppColors.darkBlue.withOpacity(0.5)),
-                ),
-              ),
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                _resetPractice(); // Reset state
-                if (Navigator.canPop(context)) {
-                  // Check if another route to pop
-                  Navigator.of(context).pop(); // Go back from the module
-                }
-              },
+            ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality:
+                  BlastDirectionality.explosive, // or directional
+              shouldLoop: false, // Don't loop the animation
+              emissionFrequency: 0.05,
+              numberOfParticles: 50,
+              gravity: 0.1,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple,
+              ],
+              child:
+                  const SizedBox(), // Empty SizedBox to position it above the dialog
             ),
           ],
         );
@@ -813,6 +850,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         _currentLevelLetters.isNotEmpty
             ? (_score / _currentLevelLetters.length * 100)
             : 0.0;
+
+    // Trigger confetti here
+    _confettiController.play();
 
     return Center(
       child: Padding(
