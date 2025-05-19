@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-// Assuming AppColors is defined in your styles.dart
 import 'package:deaf_dumb_app/styles.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 class HindiLettersPronunciation extends StatefulWidget {
   const HindiLettersPronunciation({super.key});
@@ -75,19 +75,18 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   int _currentIndex = 0;
   int _score = 0;
   bool _awaitingScore = false;
+  bool _showCorrectPopup = false; // Added for popup
+  String _correctPopupText = "";
 
   FlutterSoundRecorder? _recorder;
   bool _isRecording = false;
   String? _recordedFilePath;
   StreamSubscription? _recorderSubscription;
 
-  // --- New state variables for recorder initialization feedback ---
   bool _isRecorderInitialized = false;
   String _recorderStatusMessage = "Initializing recorder...";
-  // ---
-  late ConfettiController _confettiController; // Add confetti controller
+  late ConfettiController _confettiController;
 
-  // --- Lifecycle Methods ---
   @override
   void initState() {
     super.initState();
@@ -95,11 +94,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     _initializeRecorder();
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
-    ); // Initialize it
+    );
   }
 
   Future<void> _initializeRecorder() async {
-    // Ensure UI reflects current attempt to initialize
     if (mounted) {
       setState(() {
         _isRecorderInitialized = false;
@@ -108,19 +106,16 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     }
 
     try {
-      // Request microphone permission
       var status = await Permission.microphone.request();
 
       if (status.isGranted) {
         print('Microphone permission granted.');
         await _recorder!.openRecorder();
-        // Set subscription duration for recorder updates (optional)
         _recorder!.setSubscriptionDuration(const Duration(milliseconds: 500));
         if (mounted) {
           setState(() {
             _isRecorderInitialized = true;
-            _recorderStatusMessage =
-                "Recorder ready."; // Or an empty string if you prefer
+            _recorderStatusMessage = "Recorder ready.";
           });
         }
         print('FlutterSoundRecorder initialized.');
@@ -129,8 +124,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         String message = 'Microphone permission required.';
         if (status.isPermanentlyDenied) {
           message += ' Please grant it in app settings.';
-          // Consider adding a button to open app settings:
-          // openAppSettings();
         } else if (status.isDenied) {
           message += ' Please grant permission when prompted.';
         } else if (status.isRestricted) {
@@ -142,7 +135,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             _isRecorderInitialized = false;
           });
         }
-        return; // Exit if permission not granted
+        return;
       }
     } catch (e) {
       print('Error initializing recorder: $e');
@@ -158,7 +151,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
 
   @override
   void dispose() {
-    // Stop recording first if it's in progress
     if (_isRecording && _recorder != null && _recorder!.isRecording) {
       _recorder!.stopRecorder().catchError((e) {
         print('Error stopping recorder during dispose: $e');
@@ -169,11 +161,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       print('Error closing recorder during dispose: $e');
     });
     _recorder = null;
-    _confettiController.dispose(); // Dispose the confetti controller
+    _confettiController.dispose();
     super.dispose();
   }
 
-  // --- Audio Recording Methods ---
   Future<void> _startRecording() async {
     if (!_isRecorderInitialized || _recorder == null) {
       print('Recorder not initialized. Cannot start recording.');
@@ -188,10 +179,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           ),
         );
       }
-      // Optionally, you could try to re-initialize here, but it might be better
-      // to ensure the user resolves the issue (e.g., grants permission) first.
-      // await _initializeRecorder();
-      // if (!_isRecorderInitialized) return;
       return;
     }
 
@@ -200,21 +187,14 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       String path =
           '${tempDir.path}/hindi_pronunciation_${DateTime.now().millisecondsSinceEpoch}.aac';
 
-      await _recorder!.startRecorder(
-        toFile: path,
-        codec: Codec.aacADTS, // Good for voice
-      );
+      await _recorder!.startRecorder(toFile: path, codec: Codec.aacADTS);
 
-      // Listen to recording progress (optional)
-      _recorderSubscription = _recorder!.onProgress!.listen((e) {
-        // You can use e.duration to update UI with recording time
-        // Example: if (mounted) setState(() { _recordingTime = e.duration; });
-      });
+      _recorderSubscription = _recorder!.onProgress!.listen((e) {});
 
       if (mounted) {
         setState(() {
           _isRecording = true;
-          _recordedFilePath = null; // Clear previous path
+          _recordedFilePath = null;
         });
       }
       print('Recording started: $path');
@@ -233,8 +213,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
 
   Future<void> _stopRecording() async {
     if (_recorder == null || !_recorder!.isRecording) {
-      // Check if actually recording
-      // If _isRecording is true but recorder says it's not, sync state
       if (_isRecording && mounted) setState(() => _isRecording = false);
       return;
     }
@@ -266,7 +244,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     }
   }
 
-  // --- UI Logic Methods ---
   void _selectLevel(int level) {
     if (mounted) {
       setState(() {
@@ -283,10 +260,8 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         _awaitingScore = false;
         _isRecording = false;
         _recordedFilePath = null;
-        // It's good practice to ensure recorder is ready for the new level context
-        // If _isRecorderInitialized is false, _initializeRecorder() will show the status.
         if (!_isRecorderInitialized) {
-          _initializeRecorder(); // Attempt to re-initialize if not ready
+          _initializeRecorder();
         }
       });
     }
@@ -305,6 +280,17 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       setState(() {
         if (correct) {
           _score++;
+          _showCorrectPopup = true; // Show popup
+          _correctPopupText = "Correct!";
+          _confettiController.play();
+          Timer(const Duration(seconds: 2), () {
+            // Hide after 2 seconds
+            if (mounted) {
+              setState(() {
+                _showCorrectPopup = false;
+              });
+            }
+          });
         }
         _moveToNextLetterOrEnd();
       });
@@ -344,11 +330,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         _awaitingScore = false;
         _isRecording = false;
         _recordedFilePath = null;
-        // Re-initialize recorder status message for a fresh start
         _recorderStatusMessage = "Initializing recorder...";
-        _isRecorderInitialized =
-            false; // Force re-check on next level selection
-        _initializeRecorder(); // Attempt to initialize for next session
+        _isRecorderInitialized = false;
+        _initializeRecorder();
       });
     }
   }
@@ -360,8 +344,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         _currentLevelLetters.isNotEmpty
             ? (_score / _currentLevelLetters.length * 100)
             : 0.0;
-
-    // Trigger confetti here
     _confettiController.play();
 
     showDialog(
@@ -369,7 +351,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Stack(
-          // Wrap AlertDialog with Stack to position confetti
           alignment: Alignment.topCenter,
           children: [
             AlertDialog(
@@ -449,11 +430,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                   ),
                   child: const Text('Close'),
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
-                    _resetPractice(); // Reset state
+                    Navigator.of(context).pop();
+                    _resetPractice();
                     if (Navigator.canPop(context)) {
-                      // Check if another route to pop
-                      Navigator.of(context).pop(); // Go back from the module
+                      Navigator.of(context).pop();
                     }
                   },
                 ),
@@ -461,9 +441,8 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
             ConfettiWidget(
               confettiController: _confettiController,
-              blastDirectionality:
-                  BlastDirectionality.explosive, // or directional
-              shouldLoop: false, // Don't loop the animation
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
               emissionFrequency: 0.05,
               numberOfParticles: 50,
               gravity: 0.1,
@@ -474,8 +453,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 Colors.orange,
                 Colors.purple,
               ],
-              child:
-                  const SizedBox(), // Empty SizedBox to position it above the dialog
+              child: const SizedBox(),
             ),
           ],
         );
@@ -483,7 +461,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     );
   }
 
-  // --- UI Building Widgets ---
   Widget _buildLevelSelectionScreen() {
     return Center(
       child: Padding(
@@ -653,8 +630,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   Widget _buildLetterView() {
     if (_currentLevelLetters.isEmpty ||
         _currentIndex >= _currentLevelLetters.length) {
-      // This case should ideally be handled by showing _buildCompletionView()
-      // or _buildLevelSelectionScreen(), but as a fallback:
       return const Center(
         child: Text("Practice complete or no level selected."),
       );
@@ -768,7 +743,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   }
 
   Widget _buildPronounceAndRecordControls() {
-    // Determine if the record button should be enabled
     bool canRecord = _isRecorderInitialized;
 
     return Column(
@@ -784,7 +758,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             style: const TextStyle(color: AppColors.white),
           ),
           onPressed:
-              canRecord // Button is enabled only if canRecord is true
+              canRecord
                   ? () {
                     if (_isRecording) {
                       _stopRecording();
@@ -792,15 +766,12 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                       _startRecording();
                     }
                   }
-                  : null, // null onPressed makes the button disabled
+                  : null,
           style: ElevatedButton.styleFrom(
             backgroundColor:
                 _isRecording
-                    ? Colors
-                        .redAccent // Color when recording
-                    : (canRecord
-                        ? AppColors.primaryBlue
-                        : Colors.grey), // Blue if ready, Grey if disabled
+                    ? Colors.redAccent
+                    : (canRecord ? AppColors.primaryBlue : Colors.grey),
             padding: const EdgeInsets.symmetric(vertical: 16),
             textStyle: const TextStyle(
               fontSize: 18,
@@ -811,7 +782,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
           ),
         ),
-        // Show status message if recorder is not ready (button is disabled)
         if (!canRecord && _recorderStatusMessage.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
@@ -823,10 +793,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           ),
         const SizedBox(height: 12),
         TextButton(
-          onPressed:
-              _isRecording
-                  ? null
-                  : _skipAndGoNext, // Disable skip while recording
+          onPressed: _isRecording ? null : _skipAndGoNext,
           style: TextButton.styleFrom(
             foregroundColor:
                 _isRecording
@@ -851,7 +818,6 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ? (_score / _currentLevelLetters.length * 100)
             : 0.0;
 
-    // Trigger confetti here
     _confettiController.play();
 
     return Center(
@@ -920,7 +886,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               onPressed: () {
                 if (Navigator.canPop(context)) {
-                  Navigator.of(context).pop(); // Close this practice screen
+                  Navigator.of(context).pop();
                 }
               },
               style: TextButton.styleFrom(
@@ -949,11 +915,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Ensure recording is stopped before popping
             Future<void> action =
                 _isRecording && _recorder != null && _recorder!.isRecording
                     ? _stopRecording()
-                    : Future.value(); // Create a completed future if not recording
+                    : Future.value();
 
             action.then((_) {
               if (mounted && Navigator.canPop(context)) {
@@ -967,7 +932,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child:
+          child: Stack(
+            // Added stack for popup
+            children: [
               _selectedLevel == null
                   ? _buildLevelSelectionScreen()
                   : Column(
@@ -991,19 +958,68 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                               _currentLevelLetters.isNotEmpty &&
                                       _currentIndex >=
                                           _currentLevelLetters.length
-                                  ? _buildCompletionView() // Show completion view if practice is done
-                                  : _buildLetterView(), // Otherwise, show the current letter
+                                  ? _buildCompletionView()
+                                  : _buildLetterView(),
                         ),
                       ),
-                      // Conditionally show controls based on practice state
                       if (_currentLevelLetters.isNotEmpty &&
                           _currentIndex < _currentLevelLetters.length)
                         _awaitingScore
                             ? _buildScoringControls()
                             : _buildPronounceAndRecordControls(),
-                      const SizedBox(height: 10), // Consistent bottom padding
+                      const SizedBox(height: 10),
                     ],
                   ),
+              // Popup for "Correct!"
+              if (_showCorrectPopup)
+                Positioned(
+                  top:
+                      MediaQuery.of(context).size.height *
+                      0.15, // Adjusted position
+                  left: 0,
+                  right: 0,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 15,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.green.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: AnimatedTextKit(
+                          animatedTexts: [
+                            TyperAnimatedText(
+                              _correctPopupText,
+                              textStyle: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              speed: const Duration(milliseconds: 100),
+                            ),
+                          ],
+                          isRepeatingAnimation: false,
+                          displayFullTextOnTap: false,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
