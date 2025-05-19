@@ -47,7 +47,10 @@ class _PracticeWidgetState extends State<PracticeWidget>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [AppColors.white, AppColors.lightGreen.withOpacity(0.15)],
+              colors: [
+                AppColors.white,
+                AppColors.lightBlue.withOpacity(0.15),
+              ], // Changed to lightBlue
               stops: const [0.5, 1.0],
             ),
           ),
@@ -86,7 +89,8 @@ class _PracticeWidgetState extends State<PracticeWidget>
                     ),
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: AppColors.primaryGreen,
+                      backgroundColor:
+                          AppColors.primaryBlue, // Changed to primaryBlue
                       child: Icon(
                         Icons.person,
                         size: 32,
@@ -95,9 +99,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 30),
-
                 // Progress tracker
                 FadeTransition(
                   opacity: _fadeAnimation!,
@@ -123,7 +125,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.darkGreen,
+                            color: AppColors.darkBlue, // Changed to darkBlue
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -135,10 +137,11 @@ class _PracticeWidgetState extends State<PracticeWidget>
                                 child: LinearProgressIndicator(
                                   value: 0.65,
                                   minHeight: 12,
-                                  backgroundColor: AppColors.lightGreen
-                                      .withOpacity(0.2),
+                                  backgroundColor: AppColors.lightBlue
+                                      .withOpacity(0.2), // Changed to lightBlue
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColors.primaryGreen,
+                                    AppColors
+                                        .primaryBlue, // Changed to primaryBlue
                                   ),
                                 ),
                               ),
@@ -149,7 +152,8 @@ class _PracticeWidgetState extends State<PracticeWidget>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.darkGreen,
+                                color:
+                                    AppColors.darkBlue, // Changed to darkBlue
                               ),
                             ),
                           ],
@@ -158,9 +162,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
                 // Modules section
                 Text(
                   'Modules',
@@ -171,7 +173,6 @@ class _PracticeWidgetState extends State<PracticeWidget>
                   ),
                 ),
                 const SizedBox(height: 15),
-
                 // Module cards in a scrollable view
                 Expanded(
                   child: ListView(
@@ -209,7 +210,6 @@ class _PracticeWidgetState extends State<PracticeWidget>
                         ),
                       ),
                       const SizedBox(height: 15),
-
                       // Module 2
                       GestureDetector(
                         onTap: () {
@@ -239,9 +239,7 @@ class _PracticeWidgetState extends State<PracticeWidget>
                           },
                         ),
                       ),
-
                       const SizedBox(height: 15),
-
                       // Additional suggested module (locked)
                       const LockedModuleBox(
                         moduleName: 'Common Phrases',
@@ -288,12 +286,14 @@ class EnhancedModuleBox extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.lightGreen.withOpacity(0.3),
+          color: AppColors.lightBlue.withOpacity(0.3), // Changed to lightBlue
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.lightGreen.withOpacity(0.15),
+            color: AppColors.lightBlue.withOpacity(
+              0.15,
+            ), // Changed to lightBlue
             spreadRadius: 2,
             blurRadius: 12,
             offset: const Offset(0, 4),
@@ -308,10 +308,16 @@ class EnhancedModuleBox extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGreen.withOpacity(0.12),
+                  color: AppColors.primaryBlue.withOpacity(
+                    0.12,
+                  ), // Changed to primaryBlue
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(iconData, size: 36, color: AppColors.primaryGreen),
+                child: Icon(
+                  iconData,
+                  size: 36,
+                  color: AppColors.primaryBlue,
+                ), // Changed to primaryBlue
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -333,14 +339,16 @@ class EnhancedModuleBox extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.lightGreen.withOpacity(0.15),
+                        color: AppColors.lightBlue.withOpacity(
+                          0.15,
+                        ), // Changed to lightBlue
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         difficulty,
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.darkGreen,
+                          color: AppColors.darkBlue, // Changed to darkBlue
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -364,8 +372,12 @@ class EnhancedModuleBox extends StatelessWidget {
             child: LinearProgressIndicator(
               value: completionPercentage,
               minHeight: 8,
-              backgroundColor: AppColors.lightGreen.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+              backgroundColor: AppColors.lightBlue.withOpacity(
+                0.2,
+              ), // Changed to lightBlue
+              valueColor: AlwaysStoppedAnimation<Color>(
+                AppColors.primaryBlue,
+              ), // Changed to primaryBlue
             ),
           ),
           const SizedBox(height: 12),
@@ -375,7 +387,8 @@ class EnhancedModuleBox extends StatelessWidget {
               ElevatedButton(
                 onPressed: onContinue,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryGreen,
+                  backgroundColor:
+                      AppColors.primaryBlue, // Changed to primaryBlue
                   foregroundColor: AppColors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -555,7 +568,7 @@ class NumbersPronunciation extends StatelessWidget {
           'Numbers Pronunciation',
           style: TextStyle(color: AppColors.white, fontWeight: FontWeight.w600),
         ),
-        backgroundColor: AppColors.primaryGreen,
+        backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
         elevation: 0,
         actions: [
           IconButton(
@@ -580,7 +593,7 @@ class NumbersPronunciation extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: AppColors.primaryGreen,
+        backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
         child: const Icon(Icons.play_arrow, color: AppColors.white),
       ),
     );

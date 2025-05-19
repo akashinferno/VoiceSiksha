@@ -29,14 +29,14 @@ class VoiceSikshaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'VoiceSiksha',
+      title: 'VoiceShiksha',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Use the light green color scheme defined in styles.dart
-        primaryColor: AppColors.primaryGreen,
+        // Use the blue color scheme defined in styles.dart
+        primaryColor: AppColors.primaryBlue,
         colorScheme: const ColorScheme.light(
-          primary: AppColors.primaryGreen,
-          secondary: AppColors.secondaryGreen,
+          primary: AppColors.primaryBlue,
+          secondary: AppColors.secondaryBlue,
           background: AppColors.white,
           surface: AppColors.white,
           error: Colors.red,
@@ -90,13 +90,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryGreen, // Use primaryGreen
+      backgroundColor: AppColors.primaryBlue, // Use primaryBlue
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'VoiceSiksha',
+              'VoiceShiksha',
               style: TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
@@ -145,10 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'VoiceSiksha',
+          'VoiceShiksha',
           style: TextStyle(color: AppColors.white),
         ),
-        backgroundColor: AppColors.primaryGreen, // Use primaryGreen
+        backgroundColor: AppColors.primaryBlue, // Use primaryBlue
         centerTitle: false,
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
@@ -173,9 +173,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: AppColors.primaryGreen, // Use primaryGreen
+      backgroundColor: AppColors.primaryBlue, // Use primaryBlue
       selectedItemColor: AppColors.white,
-      unselectedItemColor: AppColors.lightGreen, // Use lightGreen
+      unselectedItemColor: AppColors.lightBlue, // Use lightBlue
       currentIndex: selectedIndex,
       onTap: onItemTapped,
       items: const <BottomNavigationBarItem>[

@@ -163,17 +163,17 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               const SizedBox(height: 10),
               Text(
                 'Final Score: ${percentageScore.toStringAsFixed(0)}%',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primaryGreen,
+                  color: AppColors.primaryBlue, // Changed to primaryBlue
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 'Letters Correct: $_score / ${_currentLevelLetters.length}',
-                style: TextStyle(fontSize: 16, color: AppColors.black),
+                style: const TextStyle(fontSize: 16, color: AppColors.black),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -183,7 +183,8 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.white,
-                backgroundColor: AppColors.primaryGreen,
+                backgroundColor:
+                    AppColors.primaryBlue, // Changed to primaryBlue
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 10,
@@ -200,14 +201,16 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.darkGreen,
+                foregroundColor: AppColors.darkBlue, // Changed to darkBlue
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: AppColors.darkGreen.withOpacity(0.5)),
+                  side: BorderSide(
+                    color: AppColors.darkBlue.withOpacity(0.5),
+                  ), // Changed to darkBlue
                 ),
               ),
               child: const Text('Close'),
@@ -237,7 +240,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryGreen,
+                color: AppColors.primaryBlue, // Changed to primaryBlue
               ),
             ),
             const SizedBox(height: 40),
@@ -271,9 +274,11 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       borderRadius: BorderRadius.circular(15),
       child: Ink(
         decoration: BoxDecoration(
-          color: AppColors.lightGreen.withOpacity(0.2),
+          color: AppColors.lightBlue.withOpacity(0.2), // Changed to lightBlue
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: AppColors.primaryGreen.withOpacity(0.5)),
+          border: Border.all(
+            color: AppColors.primaryBlue.withOpacity(0.5),
+          ), // Changed to primaryBlue
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -283,7 +288,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               children: [
                 Icon(
                   Icons.grade_outlined,
-                  color: AppColors.darkGreen,
+                  color: AppColors.darkBlue, // Changed to darkBlue
                   size: 28,
                 ),
                 const SizedBox(width: 10),
@@ -292,7 +297,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGreen,
+                    color: AppColors.darkBlue, // Changed to darkBlue
                   ),
                 ),
               ],
@@ -319,7 +324,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               alignment: Alignment.bottomRight,
               child: Icon(
                 Icons.arrow_forward_rounded,
-                color: AppColors.primaryGreen,
+                color: AppColors.primaryBlue, // Changed to primaryBlue
                 size: 24,
               ),
             ),
@@ -356,7 +361,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               'Progress (Level $_selectedLevel):',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.darkGreen,
+                color: AppColors.darkBlue, // Changed to darkBlue
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -364,7 +369,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               '${_currentIndex < _currentLevelLetters.length ? _currentIndex + 1 : _currentLevelLetters.length} / ${_currentLevelLetters.length}',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.darkGreen,
+                color: AppColors.darkBlue, // Changed to darkBlue
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -373,9 +378,11 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: progressValue,
-          backgroundColor: AppColors.lightGreen.withOpacity(0.3),
+          backgroundColor: AppColors.lightBlue.withOpacity(
+            0.3,
+          ), // Changed to lightBlue
           valueColor: const AlwaysStoppedAnimation<Color>(
-            AppColors.primaryGreen,
+            AppColors.primaryBlue, // Changed to primaryBlue
           ),
           minHeight: 12,
           borderRadius: BorderRadius.circular(6),
@@ -383,10 +390,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         const SizedBox(height: 20),
         Text(
           'Current Score: ${currentDisplayScore.toStringAsFixed(0)} / 100',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
-            color: AppColors.primaryGreen,
+            color: AppColors.primaryBlue, // Changed to primaryBlue
           ),
         ),
       ],
@@ -404,15 +411,19 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         decoration: BoxDecoration(
-          color: AppColors.lightGreen.withOpacity(0.15),
+          color: AppColors.lightBlue.withOpacity(0.15), // Changed to lightBlue
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.primaryGreen.withOpacity(0.6),
+            color: AppColors.primaryBlue.withOpacity(
+              0.6,
+            ), // Changed to primaryBlue
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryGreen.withOpacity(0.1),
+              color: AppColors.primaryBlue.withOpacity(
+                0.1,
+              ), // Changed to primaryBlue
               spreadRadius: 3,
               blurRadius: 10,
               offset: const Offset(0, 5),
@@ -421,10 +432,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         ),
         child: Text(
           _currentLevelLetters[_currentIndex],
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 120,
             fontWeight: FontWeight.bold,
-            color: AppColors.darkGreen,
+            color: AppColors.darkBlue, // Changed to darkBlue
           ),
           textAlign: TextAlign.center,
         ),
@@ -479,7 +490,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               onPressed: () => _submitScore(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkGreen,
+                backgroundColor: AppColors.darkBlue, // Changed to darkBlue
                 padding: const EdgeInsets.symmetric(
                   horizontal: 30,
                   vertical: 12,
@@ -506,7 +517,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         ElevatedButton(
           onPressed: _processPronunciationAttempt,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryGreen,
+            backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
             padding: const EdgeInsets.symmetric(vertical: 16),
             textStyle: const TextStyle(
               fontSize: 18,
@@ -525,7 +536,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         TextButton(
           onPressed: _skipAndGoNext,
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.darkGreen.withOpacity(0.8),
+            foregroundColor: AppColors.darkBlue.withOpacity(
+              0.8,
+            ), // Changed to darkBlue
             padding: const EdgeInsets.symmetric(vertical: 12),
             textStyle: const TextStyle(
               fontSize: 16,
@@ -557,7 +570,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryGreen,
+                color: AppColors.primaryBlue, // Changed to primaryBlue
               ),
               textAlign: TextAlign.center,
             ),
@@ -589,7 +602,8 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               onPressed: _resetPractice,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryGreen,
+                backgroundColor:
+                    AppColors.primaryBlue, // Changed to primaryBlue
                 padding: const EdgeInsets.symmetric(
                   horizontal: 30,
                   vertical: 15,
@@ -613,7 +627,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.darkGreen,
+                foregroundColor: AppColors.darkBlue, // Changed to darkBlue
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
@@ -633,7 +647,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               : 'Level $_selectedLevel: Hindi Letters',
           style: const TextStyle(color: AppColors.white),
         ),
-        backgroundColor: AppColors.primaryGreen,
+        backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
         iconTheme: const IconThemeData(color: AppColors.white),
       ),
       backgroundColor: AppColors.white,
