@@ -1,5 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:deaf_dumb_app/styles.dart'; // Assuming AppColors is defined here
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+// Assuming AppColors is defined in your styles.dart
+import 'package:deaf_dumb_app/styles.dart';
 
 class HindiLettersPronunciation extends StatefulWidget {
   const HindiLettersPronunciation({super.key});
@@ -69,67 +76,280 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   int _score = 0;
   bool _awaitingScore = false;
 
-  void _selectLevel(int level) {
-    setState(() {
-      _selectedLevel = level;
-      if (level == 1) {
-        _currentLevelLetters = List.from(_level1Letters);
-      } else if (level == 2) {
-        _currentLevelLetters = List.from(_level2Letters);
+  FlutterSoundRecorder? _recorder;
+  bool _isRecording = false;
+  String? _recordedFilePath;
+  StreamSubscription? _recorderSubscription;
+
+  // --- New state variables for recorder initialization feedback ---
+  bool _isRecorderInitialized = false;
+  String _recorderStatusMessage = "Initializing recorder...";
+  // ---
+
+  // --- Lifecycle Methods ---
+  @override
+  void initState() {
+    super.initState();
+    _recorder = FlutterSoundRecorder();
+    _initializeRecorder();
+  }
+
+  Future<void> _initializeRecorder() async {
+    // Ensure UI reflects current attempt to initialize
+    if (mounted) {
+      setState(() {
+        _isRecorderInitialized = false;
+        _recorderStatusMessage = "Initializing recorder, please wait...";
+      });
+    }
+
+    try {
+      // Request microphone permission
+      var status = await Permission.microphone.request();
+
+      if (status.isGranted) {
+        print('Microphone permission granted.');
+        await _recorder!.openRecorder();
+        // Set subscription duration for recorder updates (optional)
+        _recorder!.setSubscriptionDuration(const Duration(milliseconds: 500));
+        if (mounted) {
+          setState(() {
+            _isRecorderInitialized = true;
+            _recorderStatusMessage =
+                "Recorder ready."; // Or an empty string if you prefer
+          });
+        }
+        print('FlutterSoundRecorder initialized.');
       } else {
-        _currentLevelLetters = [];
+        print('Microphone permission not granted. Status: $status');
+        String message = 'Microphone permission required.';
+        if (status.isPermanentlyDenied) {
+          message += ' Please grant it in app settings.';
+          // Consider adding a button to open app settings:
+          // openAppSettings();
+        } else if (status.isDenied) {
+          message += ' Please grant permission when prompted.';
+        } else if (status.isRestricted) {
+          message = 'Microphone access is restricted on this device.';
+        }
+        if (mounted) {
+          setState(() {
+            _recorderStatusMessage = message;
+            _isRecorderInitialized = false;
+          });
+        }
+        return; // Exit if permission not granted
       }
-      _currentIndex = 0;
-      _score = 0;
-      _awaitingScore = false;
+    } catch (e) {
+      print('Error initializing recorder: $e');
+      if (mounted) {
+        setState(() {
+          _recorderStatusMessage =
+              'Error initializing recorder. Please check logs or restart.';
+          _isRecorderInitialized = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Stop recording first if it's in progress
+    if (_isRecording && _recorder != null && _recorder!.isRecording) {
+      _recorder!.stopRecorder().catchError((e) {
+        print('Error stopping recorder during dispose: $e');
+      });
+    }
+    _recorderSubscription?.cancel();
+    _recorder?.closeRecorder().catchError((e) {
+      print('Error closing recorder during dispose: $e');
     });
+    _recorder = null;
+    super.dispose();
+  }
+
+  // --- Audio Recording Methods ---
+  Future<void> _startRecording() async {
+    if (!_isRecorderInitialized || _recorder == null) {
+      print('Recorder not initialized. Cannot start recording.');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _recorderStatusMessage.isNotEmpty
+                  ? _recorderStatusMessage
+                  : 'Recorder not ready.',
+            ),
+          ),
+        );
+      }
+      // Optionally, you could try to re-initialize here, but it might be better
+      // to ensure the user resolves the issue (e.g., grants permission) first.
+      // await _initializeRecorder();
+      // if (!_isRecorderInitialized) return;
+      return;
+    }
+
+    try {
+      Directory tempDir = await getTemporaryDirectory();
+      String path =
+          '${tempDir.path}/hindi_pronunciation_${DateTime.now().millisecondsSinceEpoch}.aac';
+
+      await _recorder!.startRecorder(
+        toFile: path,
+        codec: Codec.aacADTS, // Good for voice
+      );
+
+      // Listen to recording progress (optional)
+      _recorderSubscription = _recorder!.onProgress!.listen((e) {
+        // You can use e.duration to update UI with recording time
+        // Example: if (mounted) setState(() { _recordingTime = e.duration; });
+      });
+
+      if (mounted) {
+        setState(() {
+          _isRecording = true;
+          _recordedFilePath = null; // Clear previous path
+        });
+      }
+      print('Recording started: $path');
+    } catch (e) {
+      print('Error starting recorder: $e');
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error starting recording: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    if (_recorder == null || !_recorder!.isRecording) {
+      // Check if actually recording
+      // If _isRecording is true but recorder says it's not, sync state
+      if (_isRecording && mounted) setState(() => _isRecording = false);
+      return;
+    }
+    try {
+      final path = await _recorder!.stopRecorder();
+      await _recorderSubscription?.cancel();
+      _recorderSubscription = null;
+
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _recordedFilePath = path;
+        });
+      }
+      print('Recording stopped. File saved at: $_recordedFilePath');
+      if (_recordedFilePath != null) {
+        _processPronunciationAttempt();
+      }
+    } catch (e) {
+      print('Error stopping recorder: $e');
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error stopping recording: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  // --- UI Logic Methods ---
+  void _selectLevel(int level) {
+    if (mounted) {
+      setState(() {
+        _selectedLevel = level;
+        if (level == 1) {
+          _currentLevelLetters = List.from(_level1Letters);
+        } else if (level == 2) {
+          _currentLevelLetters = List.from(_level2Letters);
+        } else {
+          _currentLevelLetters = [];
+        }
+        _currentIndex = 0;
+        _score = 0;
+        _awaitingScore = false;
+        _isRecording = false;
+        _recordedFilePath = null;
+        // It's good practice to ensure recorder is ready for the new level context
+        // If _isRecorderInitialized is false, _initializeRecorder() will show the status.
+        if (!_isRecorderInitialized) {
+          _initializeRecorder(); // Attempt to re-initialize if not ready
+        }
+      });
+    }
   }
 
   void _processPronunciationAttempt() {
-    setState(() {
-      _awaitingScore = true;
-    });
+    if (mounted) {
+      setState(() {
+        _awaitingScore = true;
+      });
+    }
   }
 
   void _submitScore(bool correct) {
-    setState(() {
-      if (correct) {
-        _score++;
-      }
-      _moveToNextLetterOrEnd();
-    });
+    if (mounted) {
+      setState(() {
+        if (correct) {
+          _score++;
+        }
+        _moveToNextLetterOrEnd();
+      });
+    }
   }
 
   void _skipAndGoNext() {
-    setState(() {
-      _moveToNextLetterOrEnd();
-    });
+    if (mounted) {
+      setState(() {
+        _moveToNextLetterOrEnd();
+      });
+    }
   }
 
   void _moveToNextLetterOrEnd() {
-    setState(() {
-      _awaitingScore = false;
-      if (_currentIndex < _currentLevelLetters.length - 1) {
-        _currentIndex++;
-      } else {
-        _currentIndex = _currentLevelLetters.length;
-        _showCompletionDialog();
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _awaitingScore = false;
+        _recordedFilePath = null;
+        if (_currentIndex < _currentLevelLetters.length - 1) {
+          _currentIndex++;
+        } else {
+          _currentIndex = _currentLevelLetters.length;
+          _showCompletionDialog();
+        }
+      });
+    }
   }
 
   void _resetPractice() {
-    setState(() {
-      _selectedLevel = null;
-      _currentLevelLetters = [];
-      _currentIndex = 0;
-      _score = 0;
-      _awaitingScore = false;
-    });
+    if (mounted) {
+      setState(() {
+        _selectedLevel = null;
+        _currentLevelLetters = [];
+        _currentIndex = 0;
+        _score = 0;
+        _awaitingScore = false;
+        _isRecording = false;
+        _recordedFilePath = null;
+        // Re-initialize recorder status message for a fresh start
+        _recorderStatusMessage = "Initializing recorder...";
+        _isRecorderInitialized =
+            false; // Force re-check on next level selection
+        _initializeRecorder(); // Attempt to initialize for next session
+      });
+    }
   }
 
   void _showCompletionDialog() {
-    if (_currentLevelLetters.isEmpty) return;
+    if (!mounted || _currentLevelLetters.isEmpty) return;
 
     double percentageScore =
         _currentLevelLetters.isNotEmpty
@@ -166,7 +386,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primaryBlue, // Changed to primaryBlue
+                  color: AppColors.primaryBlue,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -183,8 +403,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.white,
-                backgroundColor:
-                    AppColors.primaryBlue, // Changed to primaryBlue
+                backgroundColor: AppColors.primaryBlue,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 10,
@@ -201,23 +420,24 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.darkBlue, // Changed to darkBlue
+                foregroundColor: AppColors.darkBlue,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                    color: AppColors.darkBlue.withOpacity(0.5),
-                  ), // Changed to darkBlue
+                  side: BorderSide(color: AppColors.darkBlue.withOpacity(0.5)),
                 ),
               ),
               child: const Text('Close'),
               onPressed: () {
-                Navigator.of(context).pop();
-                _resetPractice();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close dialog
+                _resetPractice(); // Reset state
+                if (Navigator.canPop(context)) {
+                  // Check if another route to pop
+                  Navigator.of(context).pop(); // Go back from the module
+                }
               },
             ),
           ],
@@ -226,6 +446,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     );
   }
 
+  // --- UI Building Widgets ---
   Widget _buildLevelSelectionScreen() {
     return Center(
       child: Padding(
@@ -234,13 +455,13 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text(
+            const Text(
               'Select a Level',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryBlue, // Changed to primaryBlue
+                color: AppColors.primaryBlue,
               ),
             ),
             const SizedBox(height: 40),
@@ -274,11 +495,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
       borderRadius: BorderRadius.circular(15),
       child: Ink(
         decoration: BoxDecoration(
-          color: AppColors.lightBlue.withOpacity(0.2), // Changed to lightBlue
+          color: AppColors.lightBlue.withOpacity(0.2),
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: AppColors.primaryBlue.withOpacity(0.5),
-          ), // Changed to primaryBlue
+          border: Border.all(color: AppColors.primaryBlue.withOpacity(0.5)),
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -286,18 +505,14 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.grade_outlined,
-                  color: AppColors.darkBlue, // Changed to darkBlue
-                  size: 28,
-                ),
+                Icon(Icons.grade_outlined, color: AppColors.darkBlue, size: 28),
                 const SizedBox(width: 10),
                 Text(
                   'Level $levelNumber',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkBlue, // Changed to darkBlue
+                    color: AppColors.darkBlue,
                   ),
                 ),
               ],
@@ -320,11 +535,11 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
             ),
             const SizedBox(height: 12),
-            Align(
+            const Align(
               alignment: Alignment.bottomRight,
               child: Icon(
                 Icons.arrow_forward_rounded,
-                color: AppColors.primaryBlue, // Changed to primaryBlue
+                color: AppColors.primaryBlue,
                 size: 24,
               ),
             ),
@@ -359,17 +574,17 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           children: [
             Text(
               'Progress (Level $_selectedLevel):',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
-                color: AppColors.darkBlue, // Changed to darkBlue
+                color: AppColors.darkBlue,
                 fontWeight: FontWeight.w500,
               ),
             ),
             Text(
               '${_currentIndex < _currentLevelLetters.length ? _currentIndex + 1 : _currentLevelLetters.length} / ${_currentLevelLetters.length}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
-                color: AppColors.darkBlue, // Changed to darkBlue
+                color: AppColors.darkBlue,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -378,11 +593,9 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: progressValue,
-          backgroundColor: AppColors.lightBlue.withOpacity(
-            0.3,
-          ), // Changed to lightBlue
+          backgroundColor: AppColors.lightBlue.withOpacity(0.3),
           valueColor: const AlwaysStoppedAnimation<Color>(
-            AppColors.primaryBlue, // Changed to primaryBlue
+            AppColors.primaryBlue,
           ),
           minHeight: 12,
           borderRadius: BorderRadius.circular(6),
@@ -393,7 +606,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
-            color: AppColors.primaryBlue, // Changed to primaryBlue
+            color: AppColors.primaryBlue,
           ),
         ),
       ],
@@ -403,27 +616,25 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
   Widget _buildLetterView() {
     if (_currentLevelLetters.isEmpty ||
         _currentIndex >= _currentLevelLetters.length) {
+      // This case should ideally be handled by showing _buildCompletionView()
+      // or _buildLevelSelectionScreen(), but as a fallback:
       return const Center(
-        child: Text("Please select a level or practice complete."),
+        child: Text("Practice complete or no level selected."),
       );
     }
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         decoration: BoxDecoration(
-          color: AppColors.lightBlue.withOpacity(0.15), // Changed to lightBlue
+          color: AppColors.lightBlue.withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.primaryBlue.withOpacity(
-              0.6,
-            ), // Changed to primaryBlue
+            color: AppColors.primaryBlue.withOpacity(0.6),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryBlue.withOpacity(
-                0.1,
-              ), // Changed to primaryBlue
+              color: AppColors.primaryBlue.withOpacity(0.1),
               spreadRadius: 3,
               blurRadius: 10,
               offset: const Offset(0, 5),
@@ -435,7 +646,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           style: const TextStyle(
             fontSize: 120,
             fontWeight: FontWeight.bold,
-            color: AppColors.darkBlue, // Changed to darkBlue
+            color: AppColors.darkBlue,
           ),
           textAlign: TextAlign.center,
         ),
@@ -456,7 +667,16 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 20),
+        if (_recordedFilePath != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Audio captured. Ready for ML analysis.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -490,7 +710,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               onPressed: () => _submitScore(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkBlue, // Changed to darkBlue
+                backgroundColor: AppColors.darkBlue,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 30,
                   vertical: 12,
@@ -510,14 +730,40 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
     );
   }
 
-  Widget _buildPronounceAndSkipControls() {
+  Widget _buildPronounceAndRecordControls() {
+    // Determine if the record button should be enabled
+    bool canRecord = _isRecorderInitialized;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        ElevatedButton(
-          onPressed: _processPronunciationAttempt,
+        ElevatedButton.icon(
+          icon: Icon(
+            _isRecording ? Icons.stop_circle_outlined : Icons.mic,
+            color: AppColors.white,
+          ),
+          label: Text(
+            _isRecording ? 'Stop Recording' : 'Record Pronunciation',
+            style: const TextStyle(color: AppColors.white),
+          ),
+          onPressed:
+              canRecord // Button is enabled only if canRecord is true
+                  ? () {
+                    if (_isRecording) {
+                      _stopRecording();
+                    } else {
+                      _startRecording();
+                    }
+                  }
+                  : null, // null onPressed makes the button disabled
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
+            backgroundColor:
+                _isRecording
+                    ? Colors
+                        .redAccent // Color when recording
+                    : (canRecord
+                        ? AppColors.primaryBlue
+                        : Colors.grey), // Blue if ready, Grey if disabled
             padding: const EdgeInsets.symmetric(vertical: 16),
             textStyle: const TextStyle(
               fontSize: 18,
@@ -527,18 +773,28 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: const Text(
-            'I Have Pronounced',
-            style: TextStyle(color: AppColors.white),
-          ),
         ),
+        // Show status message if recorder is not ready (button is disabled)
+        if (!canRecord && _recorderStatusMessage.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              _recorderStatusMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+            ),
+          ),
         const SizedBox(height: 12),
         TextButton(
-          onPressed: _skipAndGoNext,
+          onPressed:
+              _isRecording
+                  ? null
+                  : _skipAndGoNext, // Disable skip while recording
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.darkBlue.withOpacity(
-              0.8,
-            ), // Changed to darkBlue
+            foregroundColor:
+                _isRecording
+                    ? AppColors.darkBlue.withOpacity(0.4)
+                    : AppColors.darkBlue.withOpacity(0.8),
             padding: const EdgeInsets.symmetric(vertical: 12),
             textStyle: const TextStyle(
               fontSize: 16,
@@ -567,10 +823,10 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
           children: [
             Text(
               "🎉 Level $_selectedLevel Complete! 🎉",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryBlue, // Changed to primaryBlue
+                color: AppColors.primaryBlue,
               ),
               textAlign: TextAlign.center,
             ),
@@ -602,8 +858,7 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               ),
               onPressed: _resetPractice,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    AppColors.primaryBlue, // Changed to primaryBlue
+                backgroundColor: AppColors.primaryBlue,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 30,
                   vertical: 15,
@@ -624,10 +879,12 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                 style: TextStyle(fontSize: 16),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                if (Navigator.canPop(context)) {
+                  Navigator.of(context).pop(); // Close this practice screen
+                }
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.darkBlue, // Changed to darkBlue
+                foregroundColor: AppColors.darkBlue,
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
@@ -647,8 +904,24 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
               : 'Level $_selectedLevel: Hindi Letters',
           style: const TextStyle(color: AppColors.white),
         ),
-        backgroundColor: AppColors.primaryBlue, // Changed to primaryBlue
+        backgroundColor: AppColors.primaryBlue,
         iconTheme: const IconThemeData(color: AppColors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Ensure recording is stopped before popping
+            Future<void> action =
+                _isRecording && _recorder != null && _recorder!.isRecording
+                    ? _stopRecording()
+                    : Future.value(); // Create a completed future if not recording
+
+            action.then((_) {
+              if (mounted && Navigator.canPop(context)) {
+                Navigator.of(context).pop();
+              }
+            });
+          },
+        ),
       ),
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -678,16 +951,17 @@ class _HindiLettersPronunciationState extends State<HindiLettersPronunciation> {
                               _currentLevelLetters.isNotEmpty &&
                                       _currentIndex >=
                                           _currentLevelLetters.length
-                                  ? _buildCompletionView()
-                                  : _buildLetterView(),
+                                  ? _buildCompletionView() // Show completion view if practice is done
+                                  : _buildLetterView(), // Otherwise, show the current letter
                         ),
                       ),
+                      // Conditionally show controls based on practice state
                       if (_currentLevelLetters.isNotEmpty &&
                           _currentIndex < _currentLevelLetters.length)
                         _awaitingScore
                             ? _buildScoringControls()
-                            : _buildPronounceAndSkipControls(),
-                      const SizedBox(height: 10),
+                            : _buildPronounceAndRecordControls(),
+                      const SizedBox(height: 10), // Consistent bottom padding
                     ],
                   ),
         ),

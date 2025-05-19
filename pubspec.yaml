@@ -31,6 +31,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.7
+  flutter_sound: ^9.2.13 # Check for the latest version
+  permission_handler: ^11.0.0 # Check for the latest version
+  path_provider: ^2.0.0 # Check for the latest version
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
